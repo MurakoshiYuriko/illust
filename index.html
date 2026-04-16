@@ -88,7 +88,8 @@
     .submit-btn:hover,
     .small-btn:hover,
     .danger-btn:hover,
-    .theme-btn:hover {
+    .theme-btn:hover,
+    .file-label:hover {
       background: var(--hover);
     }
 
@@ -194,7 +195,8 @@
 
     .field,
     .textarea,
-    .comment-input {
+    .comment-input,
+    .file-label {
       width: 100%;
       background: var(--input-bg);
       color: var(--text);
@@ -225,6 +227,21 @@
     .composer-fields {
       display: grid;
       gap: 10px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: block;
+      cursor: pointer;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 0 4px;
     }
 
     .composer-actions {
@@ -577,7 +594,11 @@
 
               <div class="composer-fields">
                 <input id="userName" class="field" type="text" placeholder="ユーザー名">
-                <input id="artImage" class="field" type="text" placeholder="画像URL">
+
+                <label for="artImageFile" class="file-label">画像を選択</label>
+                <input id="artImageFile" class="file-input" type="file" accept="image/*">
+                <div id="fileName" class="file-name">ファイル未選択</div>
+
                 <textarea id="artDesc" class="textarea" placeholder="作品の説明やこだわりを書く"></textarea>
               </div>
 
@@ -710,40 +731,56 @@
       document.getElementById("composerAvatar").textContent = getInitial(userName);
     }
 
+    function updateFileName() {
+      const input = document.getElementById("artImageFile");
+      const fileName = document.getElementById("fileName");
+      const file = input.files[0];
+      fileName.textContent = file ? file.name : "ファイル未選択";
+    }
+
     document.getElementById("userName").addEventListener("input", updateComposerAvatar);
+    document.getElementById("artImageFile").addEventListener("change", updateFileName);
 
     function addPost() {
       const userName = document.getElementById("userName").value.trim();
-      const image = document.getElementById("artImage").value.trim();
+      const fileInput = document.getElementById("artImageFile");
+      const file = fileInput.files[0];
       const description = document.getElementById("artDesc").value.trim();
 
-      if (!userName || !image) {
-        alert("ユーザー名・画像URLは必須です。");
+      if (!userName || !file) {
+        alert("ユーザー名・画像ファイルは必須です。");
         return;
       }
 
-      const newPost = {
-        id: crypto.randomUUID(),
-        userName,
-        image,
-        description,
-        likes: 0,
-        comments: [],
-        commentOpen: false,
-        createdAt: new Date().toISOString()
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const newPost = {
+          id: crypto.randomUUID(),
+          userName,
+          image: e.target.result,
+          description,
+          likes: 0,
+          comments: [],
+          commentOpen: false,
+          createdAt: new Date().toISOString()
+        };
+
+        posts.unshift(newPost);
+        savePosts();
+        renderTimeline();
+        clearForm();
+        goHome();
       };
 
-      posts.unshift(newPost);
-      savePosts();
-      renderTimeline();
-      clearForm();
-      goHome();
+      reader.readAsDataURL(file);
     }
 
     function clearForm() {
       document.getElementById("userName").value = "";
-      document.getElementById("artImage").value = "";
+      document.getElementById("artImageFile").value = "";
       document.getElementById("artDesc").value = "";
+      document.getElementById("fileName").textContent = "ファイル未選択";
       updateComposerAvatar();
     }
 
@@ -828,7 +865,7 @@
 
               <div class="post-text">${escapeHtml(post.description)}</div>
 
-              <img class="post-image" src="${escapeHtml(post.image)}" alt="投稿画像">
+              <img class="post-image" src="${post.image}" alt="投稿画像">
 
               <div class="post-actions">
                 <div class="post-actions-left">
@@ -913,7 +950,7 @@
                     </div>
 
                     <div class="post-text">${escapeHtml(post.description)}</div>
-                    <img class="post-image" src="${escapeHtml(post.image)}" alt="投稿画像">
+                    <img class="post-image" src="${post.image}" alt="投稿画像">
 
                     <div class="post-actions">
                       <div class="post-actions-left">
