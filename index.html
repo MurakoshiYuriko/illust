@@ -1,379 +1,148 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pastel Art Room</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 24px;
-      background: linear-gradient(180deg, #fff8fb 0%, #fffdf7 100%);
-      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
-      color: #5b5563;
-    }
+<style>
+body {
+  margin: 0;
+  padding: 24px;
+  background: #f4f4f4;
+  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+  color: #333;
+}
 
-    .wrap {
-      max-width: 950px;
-      margin: 0 auto;
-    }
+.wrap {
+  max-width: 950px;
+  margin: 0 auto;
+}
 
-    h1 {
-      text-align: center;
-      color: #ff7fa6;
-      margin-bottom: 8px;
-      font-size: 38px;
-    }
+h1 {
+  text-align: center;
+  color: #222;
+  margin-bottom: 8px;
+  font-size: 36px;
+  letter-spacing: 1px;
+}
 
-    .sub {
-      text-align: center;
-      margin-bottom: 28px;
-      color: #8b7f8f;
-    }
+.sub {
+  text-align: center;
+  margin-bottom: 28px;
+  color: #777;
+}
 
-    .card {
-      background: rgba(255,255,255,0.95);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(255, 183, 204, 0.18);
-      margin-bottom: 24px;
-      border: 1px solid #ffe3ee;
-    }
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
 
-    .form-title {
-      margin-top: 0;
-      color: #ff7fa6;
-    }
+.form-title {
+  margin-top: 0;
+  color: #222;
+}
 
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
+input, textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  background: #fafafa;
+}
 
-    input, textarea {
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid #f4cddd;
-      border-radius: 14px;
-      padding: 12px;
-      font-size: 15px;
-      background: #fffafd;
-    }
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
 
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
+button:hover {
+  opacity: 0.8;
+}
 
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: 0.2s;
-    }
+.main-btn {
+  background: #333;
+  color: #fff;
+}
 
-    button:hover {
-      transform: translateY(-1px);
-      opacity: 0.95;
-    }
+.row-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
 
-    .main-btn {
-      background: #ffb6cc;
-      color: #fff;
-      font-weight: bold;
-    }
+.like-btn {
+  background: #e5e5e5;
+}
 
-    .row-btns {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
+.comment-btn {
+  background: #dcdcdc;
+}
 
-    .like-btn {
-      background: #ffd9e6;
-      color: #7b4a5d;
-    }
+.delete-btn {
+  background: #f0f0f0;
+  margin-left: auto;
+}
 
-    .comment-btn {
-      background: #eadcff;
-      color: #6c5a8a;
-    }
+.post-image {
+  width: 100%;
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
 
-    .delete-btn {
-      background: #f7e6e8;
-      color: #9a6067;
-      margin-left: auto;
-    }
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
 
-    .post-image {
-      width: 100%;
-      border-radius: 18px;
-      display: block;
-      margin-bottom: 14px;
-      object-fit: cover;
-      max-height: 460px;
-      background: #fff2f7;
-    }
+.user {
+  font-weight: bold;
+}
 
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
+.date {
+  font-size: 12px;
+  color: #888;
+}
 
-    .user {
-      font-weight: bold;
-      color: #7b6682;
-    }
+.post-title {
+  margin: 8px 0;
+  color: #111;
+}
 
-    .date {
-      font-size: 13px;
-      color: #9d92a0;
-    }
+.post-desc {
+  line-height: 1.6;
+}
 
-    .post-title {
-      margin: 8px 0 6px;
-      color: #ff7fa6;
-    }
+.comment-area {
+  margin-top: 10px;
+  background: #f7f7f7;
+  border-radius: 12px;
+  padding: 10px;
+}
 
-    .post-desc {
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
+.hidden {
+  display: none;
+}
 
-    .comment-area {
-      margin-top: 14px;
-      background: #fff4f8;
-      border-radius: 16px;
-      padding: 12px;
-    }
+.comment-item {
+  background: #eee;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+}
 
-    .hidden {
-      display: none;
-    }
+.small {
+  font-size: 12px;
+  color: #888;
+}
 
-    .comment-item {
-      background: #fff;
-      border: 1px solid #ffe3ee;
-      border-radius: 12px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-
-    .small {
-      font-size: 13px;
-      color: #9b8f9b;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 28px;
-      color: #a295a4;
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 16px;
-      }
-
-      h1 {
-        font-size: 30px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>🎀 Pastel Art Room 🎀</h1>
-    <p class="sub">かわいい雰囲気のイラストギャラリー</p>
-
-    <section class="card">
-      <h2 class="form-title">作品を投稿する</h2>
-      <div class="grid">
-        <input id="userName" type="text" placeholder="ユーザー名">
-        <input id="artTitle" type="text" placeholder="作品タイトル">
-        <input id="artImage" type="text" placeholder="画像URL">
-        <textarea id="artDesc" placeholder="作品の説明"></textarea>
-        <button class="main-btn" onclick="addArtwork()">投稿する</button>
-      </div>
-    </section>
-
-    <section id="gallery"></section>
-  </div>
-
-  <script>
-    const STORAGE_KEY = "pastel_art_room_posts_v2";
-
-    const initialPosts = [
-      {
-        id: crypto.randomUUID(),
-        userName: "yuri",
-        title: "ふんわりうさぎ",
-        image: "https://picsum.photos/id/237/900/520",
-        description: "やさしい色を意識して作ったサンプル作品です。",
-        likes: 2,
-        comments: ["かわいい！", "色合いが好きです"],
-        commentOpen: false,
-        createdAt: new Date().toISOString()
-      }
-    ];
-
-    function loadPosts() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error("保存データの読み込みに失敗", e);
-        }
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialPosts));
-      return initialPosts;
-    }
-
-    let posts = loadPosts();
-
-    function savePosts() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-    }
-
-    function formatDate(iso) {
-      const d = new Date(iso);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      const h = String(d.getHours()).padStart(2, "0");
-      const min = String(d.getMinutes()).padStart(2, "0");
-      return `${y}/${m}/${day} ${h}:${min}`;
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function addArtwork() {
-      const userName = document.getElementById("userName").value.trim();
-      const title = document.getElementById("artTitle").value.trim();
-      const image = document.getElementById("artImage").value.trim();
-      const description = document.getElementById("artDesc").value.trim();
-
-      if (!userName || !title || !image) {
-        alert("ユーザー名・作品タイトル・画像URLは必須です。");
-        return;
-      }
-
-      const newPost = {
-        id: crypto.randomUUID(),
-        userName,
-        title,
-        image,
-        description,
-        likes: 0,
-        comments: [],
-        commentOpen: false,
-        createdAt: new Date().toISOString()
-      };
-
-      posts.unshift(newPost);
-      savePosts();
-      render();
-
-      document.getElementById("userName").value = "";
-      document.getElementById("artTitle").value = "";
-      document.getElementById("artImage").value = "";
-      document.getElementById("artDesc").value = "";
-    }
-
-    function likePost(id) {
-      const post = posts.find(p => p.id === id);
-      if (!post) return;
-      post.likes += 1;
-      savePosts();
-      render();
-    }
-
-    function toggleComment(id) {
-      const post = posts.find(p => p.id === id);
-      if (!post) return;
-      post.commentOpen = !post.commentOpen;
-      savePosts();
-      render();
-    }
-
-    function addComment(id) {
-      const input = document.getElementById(`comment-${id}`);
-      if (!input) return;
-
-      const text = input.value.trim();
-      if (!text) return;
-
-      const post = posts.find(p => p.id === id);
-      if (!post) return;
-
-      post.comments.push(text);
-      post.commentOpen = false;
-      savePosts();
-      render();
-    }
-
-    function deletePost(id) {
-      if (!confirm("この作品を削除しますか？")) return;
-      posts = posts.filter(p => p.id !== id);
-      savePosts();
-      render();
-    }
-
-    function render() {
-      const gallery = document.getElementById("gallery");
-
-      if (posts.length === 0) {
-        gallery.innerHTML = `<div class="card empty">まだ作品がありません。</div>`;
-        return;
-      }
-
-      gallery.innerHTML = posts.map(post => `
-        <article class="card">
-          <img class="post-image" src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}">
-          <div class="meta">
-            <div>
-              <div class="user">@${escapeHtml(post.userName)}</div>
-              <div class="date">${formatDate(post.createdAt)}</div>
-            </div>
-            <div class="small">コメント ${post.comments.length} 件</div>
-          </div>
-
-          <h2 class="post-title">${escapeHtml(post.title)}</h2>
-          <div class="post-desc">${escapeHtml(post.description)}</div>
-
-          <div class="row-btns">
-            <button class="like-btn" onclick="likePost('${post.id}')">❤️ いいね ${post.likes}</button>
-            <button class="comment-btn" onclick="toggleComment('${post.id}')">💬 コメント</button>
-            <button class="delete-btn" onclick="deletePost('${post.id}')">🗑 削除</button>
-          </div>
-
-          <div class="comment-area ${post.commentOpen ? "" : "hidden"}">
-            <input id="comment-${post.id}" type="text" placeholder="コメントを書く">
-            <div class="row-btns">
-              <button class="main-btn" onclick="addComment('${post.id}')">送信</button>
-            </div>
-          </div>
-
-          <div style="margin-top: 14px;">
-            ${post.comments.map(c => `<div class="comment-item">${escapeHtml(c)}</div>`).join("")}
-          </div>
-        </article>
-      `).join("");
-    }
-
-    render();
-  </script>
-</body>
-</html>
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+</style>
