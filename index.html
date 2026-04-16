@@ -3,42 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MonoArt Feed</title>
+<title>Mono Timeline</title>
 
 <style>
-* { box-sizing: border-box; }
-
 body {
   margin: 0;
-  background: #ffffff;
-  color: #111;
   font-family: sans-serif;
+  background: #fff;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  max-width: 1000px;
+.container {
+  max-width: 600px;
   margin: 0 auto;
-}
-
-.sidebar {
+  border-left: 1px solid #eee;
   border-right: 1px solid #eee;
-  padding: 20px;
+  min-height: 100vh;
 }
 
-.main {
-  border-right: 1px solid #eee;
-}
-
-.topbar {
-  padding: 16px;
+.header {
+  padding: 15px;
   font-weight: bold;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+.post-form {
+  padding: 15px;
   border-bottom: 1px solid #eee;
 }
 
-.post-form, .post {
-  padding: 16px;
+.post {
+  padding: 15px;
   border-bottom: 1px solid #eee;
 }
 
@@ -56,35 +53,36 @@ body {
   line-height: 40px;
 }
 
-input, textarea {
+.content {
+  flex: 1;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.time {
+  color: gray;
+  font-size: 12px;
+}
+
+img {
   width: 100%;
-  padding: 8px;
   border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-button {
-  border: none;
-  padding: 8px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.submit-btn {
-  background: black;
-  color: white;
-}
-
-.post img {
-  width: 100%;
-  border-radius: 12px;
   margin-top: 10px;
 }
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   margin-top: 10px;
+  color: gray;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 .comment-box { display:none; }
@@ -94,96 +92,81 @@ button {
   background: #f3f3f3;
   padding: 6px;
   margin-top: 6px;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="layout">
+<div class="container">
 
-<div class="sidebar">
-  <h2>MonoArt</h2>
-</div>
-
-<div class="main">
-
-<div class="topbar">ホーム</div>
+<div class="header">Mono Timeline</div>
 
 <div class="post-form">
-  <input id="userName" placeholder="ユーザー名">
-  <input id="title" placeholder="タイトル">
-  <input id="image" type="file">
-  <textarea id="desc" placeholder="説明"></textarea>
-  <button class="submit-btn" onclick="addPost()">投稿</button>
+  <input id="user" placeholder="名前"><br><br>
+  <input id="title" placeholder="タイトル"><br><br>
+  <input id="file" type="file"><br><br>
+  <textarea id="text" placeholder="ひとこと"></textarea><br><br>
+  <button onclick="addPost()">投稿</button>
 </div>
 
 <div id="timeline"></div>
 
 </div>
 
-</div>
-
 <script>
-const STORAGE = "posts_v3";
-
-let posts = JSON.parse(localStorage.getItem(STORAGE)) || [];
+let posts = JSON.parse(localStorage.getItem("data")) || [];
 
 function save(){
-  localStorage.setItem(STORAGE, JSON.stringify(posts));
+  localStorage.setItem("data", JSON.stringify(posts));
 }
 
 function addPost(){
-  const user = userName.value;
-  const titleText = title.value;
-  const file = image.files[0];
-  const descText = desc.value;
+  const user = document.getElementById("user").value;
+  const title = document.getElementById("title").value;
+  const file = document.getElementById("file").files[0];
+  const text = document.getElementById("text").value;
 
-  if(!user || !titleText || !file){
-    alert("全部入力して！");
-    return;
-  }
+  if(!user || !title || !file) return;
 
   const reader = new FileReader();
-
   reader.onload = function(e){
     posts.unshift({
       id: Date.now(),
       user,
-      title: titleText,
-      image: e.target.result,
-      desc: descText,
+      title,
+      img: e.target.result,
+      text,
       likes: 0,
       comments: [],
-      open:false
+      open:false,
+      time: new Date().toLocaleString()
     });
-
     save();
     render();
   };
-
   reader.readAsDataURL(file);
 }
 
 function like(id){
-  const p = posts.find(p=>p.id===id);
+  let p = posts.find(p=>p.id==id);
   p.likes++;
   save();
   render();
 }
 
 function toggle(id){
-  const p = posts.find(p=>p.id===id);
+  let p = posts.find(p=>p.id==id);
   p.open = !p.open;
   render();
 }
 
-function addComment(id){
-  const input = document.getElementById("c"+id);
+function comment(id){
+  let input = document.getElementById("c"+id);
   if(!input.value) return;
 
-  const p = posts.find(p=>p.id===id);
+  let p = posts.find(p=>p.id==id);
   p.comments.push(input.value);
   p.open=false;
 
@@ -192,16 +175,22 @@ function addComment(id){
 }
 
 function render(){
-  timeline.innerHTML = posts.map(p=>`
+  const tl = document.getElementById("timeline");
+
+  tl.innerHTML = posts.map(p=>`
     <div class="post">
       <div class="row">
         <div class="avatar">${p.user[0]}</div>
-        <div>
-          <b>${p.user}</b>
+
+        <div class="content">
+          <div class="name">${p.user}</div>
+          <div class="time">${p.time}</div>
+
           <div>${p.title}</div>
-          <div>${p.desc}</div>
-          <img src="${p.image}">
-          
+          <div>${p.text}</div>
+
+          <img src="${p.img}">
+
           <div class="actions">
             <button onclick="like(${p.id})">♡ ${p.likes}</button>
             <button onclick="toggle(${p.id})">💬</button>
@@ -209,7 +198,7 @@ function render(){
 
           <div class="comment-box ${p.open?'open':''}">
             <input id="c${p.id}">
-            <button onclick="addComment(${p.id})">送信</button>
+            <button onclick="comment(${p.id})">送信</button>
           </div>
 
           ${p.comments.map(c=>`<div class="comment">${c}</div>`).join("")}
