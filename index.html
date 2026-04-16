@@ -1,148 +1,27 @@
-<style>
-body {
-  margin: 0;
-  padding: 24px;
-  background: #f4f4f4;
-  font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
-  color: #333;
-}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">◉</div>
+    <div class="menu-item">ホーム</div>
+    <div class="menu-item">プロフィール</div>
+    <div class="menu-item">投稿</div>
+  </aside>
 
-.wrap {
-  max-width: 950px;
-  margin: 0 auto;
-}
+  <main class="main">
+    <div class="topbar">ホーム</div>
 
-h1 {
-  text-align: center;
-  color: #222;
-  margin-bottom: 8px;
-  font-size: 36px;
-  letter-spacing: 1px;
-}
+    <section class="post-form">
+      投稿フォーム
+    </section>
 
-.sub {
-  text-align: center;
-  margin-bottom: 28px;
-  color: #777;
-}
+    <section id="timeline">
+      投稿一覧
+    </section>
+  </main>
 
-.card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
-
-.form-title {
-  margin-top: 0;
-  color: #222;
-}
-
-input, textarea {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-button:hover {
-  opacity: 0.8;
-}
-
-.main-btn {
-  background: #333;
-  color: #fff;
-}
-
-.row-btns {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-
-.like-btn {
-  background: #e5e5e5;
-}
-
-.comment-btn {
-  background: #dcdcdc;
-}
-
-.delete-btn {
-  background: #f0f0f0;
-  margin-left: auto;
-}
-
-.post-image {
-  width: 100%;
-  border-radius: 16px;
-  margin-bottom: 12px;
-}
-
-.meta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.user {
-  font-weight: bold;
-}
-
-.date {
-  font-size: 12px;
-  color: #888;
-}
-
-.post-title {
-  margin: 8px 0;
-  color: #111;
-}
-
-.post-desc {
-  line-height: 1.6;
-}
-
-.comment-area {
-  margin-top: 10px;
-  background: #f7f7f7;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-.hidden {
-  display: none;
-}
-
-.comment-item {
-  background: #eee;
-  border-radius: 8px;
-  padding: 8px;
-  margin-top: 6px;
-}
-
-.small {
-  font-size: 12px;
-  color: #888;
-}
-
-.empty {
-  text-align: center;
-  padding: 20px;
-  color: #777;
-}
-</style>
+  <aside class="rightbar">
+    <div class="panel">
+      <strong>このサイトについて</strong>
+      <p class="small">X風のイラスト投稿サイトです。</p>
+    </div>
+  </aside>
+</div>
