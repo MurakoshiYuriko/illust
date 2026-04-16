@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mono Timeline</title>
+<title>MonoArt Timeline</title>
 
 <style>
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
+  background: #ffffff;
+  color: #111;
   font-family: sans-serif;
-  background: #fff;
 }
 
 .container {
@@ -53,12 +56,11 @@ body {
   line-height: 40px;
 }
 
-.content {
-  flex: 1;
-}
+.content { flex: 1; }
 
 .name {
   font-weight: bold;
+  cursor: pointer;
 }
 
 .time {
@@ -94,6 +96,9 @@ button {
   margin-top: 6px;
   border-radius: 6px;
 }
+
+#profile { display:none; padding:15px; }
+.back { margin-bottom:10px; cursor:pointer; }
 </style>
 </head>
 
@@ -101,17 +106,23 @@ button {
 
 <div class="container">
 
-<div class="header">Mono Timeline</div>
+<div class="header">MonoArt Timeline</div>
+
+<div id="home">
 
 <div class="post-form">
   <input id="user" placeholder="名前"><br><br>
   <input id="title" placeholder="タイトル"><br><br>
   <input id="file" type="file"><br><br>
-  <textarea id="text" placeholder="ひとこと"></textarea><br><br>
+  <textarea id="text" placeholder="説明"></textarea><br><br>
   <button onclick="addPost()">投稿</button>
 </div>
 
 <div id="timeline"></div>
+
+</div>
+
+<div id="profile"></div>
 
 </div>
 
@@ -123,14 +134,18 @@ function save(){
 }
 
 function addPost(){
-  const user = document.getElementById("user").value;
-  const title = document.getElementById("title").value;
-  const file = document.getElementById("file").files[0];
-  const text = document.getElementById("text").value;
+  const user = userInput.value;
+  const title = titleInput.value;
+  const file = fileInput.files[0];
+  const text = textInput.value;
 
-  if(!user || !title || !file) return;
+  if(!user || !title || !file){
+    alert("全部入力して！");
+    return;
+  }
 
   const reader = new FileReader();
+
   reader.onload = function(e){
     posts.unshift({
       id: Date.now(),
@@ -143,11 +158,18 @@ function addPost(){
       open:false,
       time: new Date().toLocaleString()
     });
+
     save();
     render();
   };
+
   reader.readAsDataURL(file);
 }
+
+const userInput = document.getElementById("user");
+const titleInput = document.getElementById("title");
+const fileInput = document.getElementById("file");
+const textInput = document.getElementById("text");
 
 function like(id){
   let p = posts.find(p=>p.id==id);
@@ -174,6 +196,31 @@ function comment(id){
   render();
 }
 
+function showProfile(user){
+  document.getElementById("home").style.display="none";
+  const profile = document.getElementById("profile");
+
+  const userPosts = posts.filter(p=>p.user===user);
+
+  profile.innerHTML = `
+    <div class="back" onclick="back()">←戻る</div>
+    <h2>${user}</h2>
+    ${userPosts.map(p=>`
+      <div class="post">
+        <img src="${p.img}">
+        <div>${p.title}</div>
+      </div>
+    `).join("")}
+  `;
+
+  profile.style.display="block";
+}
+
+function back(){
+  document.getElementById("profile").style.display="none";
+  document.getElementById("home").style.display="block";
+}
+
 function render(){
   const tl = document.getElementById("timeline");
 
@@ -183,7 +230,7 @@ function render(){
         <div class="avatar">${p.user[0]}</div>
 
         <div class="content">
-          <div class="name">${p.user}</div>
+          <div class="name" onclick="showProfile('${p.user}')">${p.user}</div>
           <div class="time">${p.time}</div>
 
           <div>${p.title}</div>
