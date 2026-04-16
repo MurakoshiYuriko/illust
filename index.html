@@ -267,6 +267,11 @@
       font-size: 15px;
     }
 
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .small-btn,
     .danger-btn {
       background: transparent;
@@ -603,7 +608,7 @@
               </div>
 
               <div class="composer-actions">
-                <button class="submit-btn" onclick="addPost()">投稿する</button>
+                <button id="submitBtn" class="submit-btn" onclick="addPost()">投稿する</button>
               </div>
             </div>
           </div>
@@ -636,7 +641,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "monoart_feed_posts_v1";
+    const STORAGE_KEY = "monoart_feed_posts_v2";
     const THEME_KEY = "monoart_theme_v1";
 
     const defaultPosts = [
@@ -679,6 +684,17 @@
 
     function savePosts() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    }
+
+    function safeSavePosts() {
+      try {
+        savePosts();
+        return true;
+      } catch (e) {
+        console.error("保存エラー", e);
+        alert("画像が大きすぎて保存できませんでした。もう少し軽い画像で試してみてください。");
+        return false;
+      }
     }
 
     function escapeHtml(text) {
@@ -738,10 +754,58 @@
       fileName.textContent = file ? file.name : "ファイル未選択";
     }
 
+    function setSubmitting(isSubmitting) {
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = isSubmitting;
+      btn.textContent = isSubmitting ? "投稿中..." : "投稿する";
+    }
+
+    function resizeImage(file, maxWidth = 1200, quality = 0.75) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          const img = new Image();
+
+          img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          };
+
+          img.onerror = function() {
+            reject(new Error("画像の読み込みに失敗しました"));
+          };
+
+          img.src = e.target.result;
+        };
+
+        reader.onerror = function() {
+          reject(new Error("ファイルの読み込みに失敗しました"));
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
     document.getElementById("userName").addEventListener("input", updateComposerAvatar);
     document.getElementById("artImageFile").addEventListener("change", updateFileName);
 
-    function addPost() {
+    async function addPost() {
       const userName = document.getElementById("userName").value.trim();
       const fileInput = document.getElementById("artImageFile");
       const file = fileInput.files[0];
@@ -752,13 +816,15 @@
         return;
       }
 
-      const reader = new FileReader();
+      setSubmitting(true);
 
-      reader.onload = function(e) {
+      try {
+        const resizedImage = await resizeImage(file, 1200, 0.75);
+
         const newPost = {
           id: crypto.randomUUID(),
           userName,
-          image: e.target.result,
+          image: resizedImage,
           description,
           likes: 0,
           comments: [],
@@ -766,14 +832,24 @@
           createdAt: new Date().toISOString()
         };
 
+        const previousPosts = [...posts];
         posts.unshift(newPost);
-        savePosts();
+
+        const saved = safeSavePosts();
+        if (!saved) {
+          posts = previousPosts;
+          return;
+        }
+
         renderTimeline();
         clearForm();
         goHome();
-      };
-
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error(error);
+        alert("投稿に失敗しました。画像ファイルを変えてもう一度試してください。");
+      } finally {
+        setSubmitting(false);
+      }
     }
 
     function clearForm() {
@@ -788,7 +864,7 @@
       const post = posts.find(p => p.id === id);
       if (!post) return;
       post.likes += 1;
-      savePosts();
+      safeSavePosts();
       renderTimeline();
       refreshProfileIfOpen(post.userName);
     }
@@ -800,7 +876,7 @@
         }
         return post;
       });
-      savePosts();
+      safeSavePosts();
       renderTimeline();
       refreshProfileIfOpen(window.currentProfileUser);
     }
@@ -817,7 +893,7 @@
 
       post.comments.push(text);
       post.commentOpen = false;
-      savePosts();
+      safeSavePosts();
       renderTimeline();
       refreshProfileIfOpen(post.userName);
     }
@@ -830,7 +906,7 @@
       if (!ok) return;
 
       posts = posts.filter(p => p.id !== id);
-      savePosts();
+      safeSavePosts();
       renderTimeline();
       refreshProfileIfOpen(target.userName);
       if (posts.length === 0) {
