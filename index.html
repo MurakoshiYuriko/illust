@@ -1,154 +1,125 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>お絵かき掲示板</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-    }
+<meta charset="UTF-8">
+<title>Pastel Art Room</title>
+<style>
+body {
+  background: #fff5f7;
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 20px;
+}
 
-    h1 {
-      text-align: center;
-    }
+h1 {
+  text-align: center;
+  color: #ff6b81;
+}
 
-    .box {
-      max-width: 700px;
-      margin: 0 auto 20px;
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-    }
+.container {
+  max-width: 800px;
+  margin: auto;
+}
 
-    input, textarea, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
-    .post {
-      margin-top: 20px;
-      padding: 15px;
-      background: white;
-      border-radius: 12px;
-    }
+img {
+  width: 100%;
+  border-radius: 15px;
+}
 
-    .post img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
+button {
+  background: #ffb6c1;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
 
-    .comment {
-      background: #f0f0f0;
-      padding: 8px;
-      border-radius: 8px;
-      margin-top: 8px;
-    }
+input {
+  padding: 8px;
+  width: 70%;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
 
-    .like-btn {
-      margin-top: 10px;
-      background: pink;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+.comment {
+  background: #ffeef2;
+  padding: 5px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+</style>
 </head>
-<body>
-  <h1>お絵かき掲示板</h1>
 
-  <div class="box">
-    <input type="text" id="name" placeholder="名前">
-    <input type="text" id="title" placeholder="タイトル">
-    <input type="text" id="imageUrl" placeholder="画像URL">
-    <textarea id="text" placeholder="ひとこと"></textarea>
-    <button onclick="addPost()">投稿する</button>
+<body>
+
+<h1>🎀 Pastel Art Room 🎀</h1>
+
+<div class="container">
+
+<div class="card">
+  <h3>うさぎちゃん</h3>
+  <img src="https://picsum.photos/400/300">
+
+  <button onclick="like(0)">❤️ いいね <span id="like0">0</span></button>
+
+  <div>
+    <input id="comment0">
+    <button onclick="addComment(0)">送信</button>
   </div>
 
-  <div id="posts"></div>
+  <div id="comments0"></div>
+</div>
 
-  <script>
-    let posts = [];
+</div>
 
-    function addPost() {
-      const name = document.getElementById("name").value;
-      const title = document.getElementById("title").value;
-      const imageUrl = document.getElementById("imageUrl").value;
-      const text = document.getElementById("text").value;
+<script>
+let data = JSON.parse(localStorage.getItem("data")) || [
+  {likes:0, comments:[]}
+];
 
-      if (!name || !title) {
-        alert("名前とタイトルは必須です");
-        return;
-      }
+function save(){
+  localStorage.setItem("data", JSON.stringify(data));
+}
 
-      const post = {
-        id: Date.now(),
-        name,
-        title,
-        imageUrl,
-        text,
-        likes: 0,
-        comments: []
-      };
+function like(i){
+  data[i].likes++;
+  save();
+  document.getElementById("like"+i).innerText = data[i].likes;
+}
 
-      posts.unshift(post);
-      renderPosts();
+function addComment(i){
+  let input = document.getElementById("comment"+i);
+  if(!input.value) return;
 
-      document.getElementById("name").value = "";
-      document.getElementById("title").value = "";
-      document.getElementById("imageUrl").value = "";
-      document.getElementById("text").value = "";
-    }
+  data[i].comments.push(input.value);
+  input.value="";
+  save();
+  render();
+}
 
-    function likePost(id) {
-      const post = posts.find(p => p.id === id);
-      post.likes++;
-      renderPosts();
-    }
+function render(){
+  data.forEach((post,i)=>{
+    document.getElementById("like"+i).innerText = post.likes;
 
-    function addComment(id) {
-      const input = document.getElementById("comment-" + id);
-      const text = input.value;
+    let html="";
+    post.comments.forEach(c=>{
+      html += `<div class="comment">${c}</div>`;
+    });
 
-      if (!text) return;
+    document.getElementById("comments"+i).innerHTML = html;
+  });
+}
 
-      const post = posts.find(p => p.id === id);
-      post.comments.push(text);
-      renderPosts();
-    }
+render();
+</script>
 
-    function renderPosts() {
-      const postsDiv = document.getElementById("posts");
-      postsDiv.innerHTML = "";
-
-      posts.forEach(post => {
-        const postEl = document.createElement("div");
-        postEl.className = "box post";
-
-        postEl.innerHTML = `
-          <h2>${post.title}</h2>
-          <p><strong>${post.name}</strong></p>
-          <p>${post.text}</p>
-          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="">` : ""}
-          <button class="like-btn" onclick="likePost(${post.id})">いいね (${post.likes})</button>
-          <div style="margin-top:10px;">
-            <input type="text" id="comment-${post.id}" placeholder="コメントを書く">
-            <button onclick="addComment(${post.id})">コメント送信</button>
-          </div>
-          <div>
-            ${post.comments.map(c => `<div class="comment">${c}</div>`).join("")}
-          </div>
-        `;
-
-        postsDiv.appendChild(postEl);
-      });
-    }
-  </script>
 </body>
 </html>
